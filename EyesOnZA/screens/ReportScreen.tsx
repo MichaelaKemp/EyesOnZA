@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import Constants from "expo-constants";
 
 export default function ReportScreen() {
   const [title, setTitle] = useState("");
@@ -15,6 +16,8 @@ export default function ReportScreen() {
   const [longitude, setLongitude] = useState("");
   const { user } = useAuth();
   const router = useRouter();
+  const [useManualLocation, setUseManualLocation] = useState(false);
+  const GOOGLE_MAPS_API_KEY = Constants.expoConfig?.extra?.GOOGLE_MAPS_API_KEY;
 
   const getCurrentLocation = async () => {
     try {
@@ -35,10 +38,14 @@ export default function ReportScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!title || !description || !location || !latitude || !longitude) {
-      Alert.alert("Error", "Please fill in all fields.");
-      return;
-    }
+  if (!title || !description || !latitude || !longitude) {
+    Alert.alert("Error", "Please fill in all fields or set a location.");
+    return;
+  }
+
+  if (!location) {
+    setLocation("Current Location");
+  }
 
     try {
       await addDoc(collection(db, "reports"), {
@@ -87,25 +94,52 @@ export default function ReportScreen() {
           onChangeText={setDescription}
         />
 
-        <GooglePlacesAutocomplete
-          placeholder="Search for location..."
-          fetchDetails={true}
-          onPress={(data, details = null) => {
-            setLocation(data.description);
-            if (details?.geometry?.location) {
+        {!useManualLocation ? (
+          <TouchableOpacity
+            style={[styles.input, { justifyContent: "center" }]}
+            onPress={() => setUseManualLocation(true)}
+          >
+            <Text style={{ color: location ? "#000" : "#999" }}>
+              {location || "🔍 Tap to search location manually"}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <GooglePlacesAutocomplete
+            placeholder="Type location..."
+            minLength={2}
+            fetchDetails={true}
+            nearbyPlacesAPI="GooglePlacesSearch"
+            GooglePlacesSearchQuery={{ rankby: "distance" }}
+            enablePoweredByContainer={false}
+            debounce={300}
+
+            requestUrl={{
+              useOnPlatform: "all",
+              url: "https://maps.googleapis.com/maps/api",
+            }}
+
+            onPress={(data, details = null) => {
+                console.log("GooglePlacesAutocomplete onPress:", { data, details });
+              if (!data || !details) return;
+              setLocation(data.description);
               setLatitude(details.geometry.location.lat.toString());
               setLongitude(details.geometry.location.lng.toString());
-            }
-          }}
-          query={{
-            key: "YOUR_GOOGLE_MAPS_API_KEY",
-            language: "en",
-          }}
-          styles={{
-            textInput: styles.input,
-            container: { flex: 0, width: "100%" },
-          }}
-        />
+              setUseManualLocation(false);
+            }}
+
+            query={{
+              key: GOOGLE_MAPS_API_KEY,
+              language: "en",
+              components: "country:za",
+            }}
+
+            styles={{
+              container: { flex: 0, width: "100%", marginVertical: 8, zIndex: 999 },
+              listView: { backgroundColor: "white", borderRadius: 8, elevation: 3 },
+              textInput: styles.input,
+            }}
+          />
+        )}
 
         {latitude && longitude ? (
           <Text style={styles.coords}>
