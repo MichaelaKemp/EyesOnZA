@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert, } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 
@@ -22,7 +23,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>EyesOnZA</Text>
       <Text style={styles.subtitle}>Community Crime Reporting</Text>
 
@@ -47,17 +48,17 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f9f9f9" },
+  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f9f9f9", paddingHorizontal: 20 },
   title: { fontSize: 32, fontWeight: "bold", color: "#d32f2f" },
   subtitle: { marginBottom: 30, color: "#555" },
   button: { backgroundColor: "#d32f2f", padding: 15, borderRadius: 10, marginVertical: 10, width: 220 },
   buttonText: { color: "#fff", fontWeight: "600", textAlign: "center" },
   signOutButton: { marginTop: 30, padding: 12, borderColor: "#d32f2f", borderWidth: 1, borderRadius: 8, width: 220 },
-  signOutText: { color: "#d32f2f", textAlign: "center", fontWeight: "600", },
-  welcomeText: { marginBottom: 20, color: "#333", },
+  signOutText: { color: "#d32f2f", textAlign: "center", fontWeight: "600" },
+  welcomeText: { marginBottom: 20, color: "#333" },
 });

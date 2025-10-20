@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView, } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
@@ -43,28 +44,34 @@ export default function ReportDetails() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{report.title}</Text>
-      <Text style={styles.date}>
-        {report.createdAt?.toDate
-          ? new Date(report.createdAt.toDate()).toLocaleString()
-          : "Unknown date"}
-      </Text>
-      <Text style={styles.description}>{report.description}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>{report.title}</Text>
+        <Text style={styles.date}>
+          {report.createdAt?.toDate
+            ? new Date(report.createdAt.toDate()).toLocaleString()
+            : "Unknown date"}
+        </Text>
+        <Text style={styles.description}>{report.description}</Text>
 
-      {report.userEmail && (
-        <Text style={styles.email}>Reported by: {report.userEmail}</Text>
-      )}
+        {report.userEmail && (
+          <Text style={styles.email}>Reported by: {report.userEmail}</Text>
+        )}
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>← Back to Map</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>← Back to Map</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  container: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 20, backgroundColor: "#fff" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10, color: "#d32f2f" },
   date: { fontSize: 12, color: "#666", marginBottom: 20 },
